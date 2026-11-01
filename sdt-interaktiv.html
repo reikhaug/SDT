@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<!-- SPECIFICATION_START
+- Interaktiv læringsressurs om Selvbestemmelsesteorien (SDT) til Deci og Ryan, bygget som et digitalt læringsforløp
+- Navigasjonsmeny med knapper: Intro, De tre behovene, Motivasjon, Mini-teorier, Forskning, Undervisning, Min handlingsplan
+- Visuell fremstilling av de tre grunnleggende behovene som fargede sirkler, og motivasjonskontinuum med klikkbare stadier
+- Seks mini-teorier (CET, OIT, COT, BPNT, GCT, RMT) som utforskbare kort, pluss en visuell modell som viser sammenhengen mellom dem
+- Hver hovedseksjon har en refleksjonsoppgave med tekstfelt som lagres i nettleseren
+- Scenario-baserte case fra høyere utdanning og flervalgsspørsmål med umiddelbar tilbakemelding
+- Egen seksjon "Hva sier forskningen?" med funn om autonomi, kompetanse og tilhørighet i høyere utdanning
+- Avsluttende analyseoppgave der brukeren vurderer egen undervisning gjennom SDT-linsen
+- Personlig handlingsplan med tre tiltak som lagres og vises tilbake til brukeren
+- Myke farger, avrundede kort og enkle overganger ved bytte av seksjon
+SPECIFICATION_END -->
+
+
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selvbestemmelsesteorien - Læringsressurs</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+  
+  <style>
+* { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #eef5f9, #f7f3eb);
+    color: #22333b;
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(90deg, #2a6f77, #3d8f7a);
+    color: white;
+    padding: 3vh 4vw;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  header h1 {
+    margin: 0 0 0.3em 0;
+    font-size: clamp(1.3rem, 3vw, 2.2rem);
+  }
+  header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+  }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1vw;
+    background: #1f4e52;
+    padding: 1.2vh 2vw;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  nav button {
+    background: rgba(255,255,255,0.12);
+    color: white;
+    border: 2px solid transparent;
+    padding: 0.7em 1.3em;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+  nav button:hover {
+    background: rgba(255,255,255,0.25);
+  }
+  nav button.active {
+    background: #e7a23a;
+    color: #22333b;
+    font-weight: bold;
+    border-color: #fff;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4vh 4vw;
+  }
+  section {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+  section.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h2 {
+    color: #1f4e52;
+    border-bottom: 3px solid #e7a23a;
+    padding-bottom: 0.3em;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  }
+  .intro-box {
+    background: white;
+    border-radius: 16px;
+    padding: 3vh 3vw;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    line-height: 1.7;
+    font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  }
+  .intro-box a {
+    color: #2a6f77;
+    font-weight: bold;
+  }
+  .needs-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2vw;
+    flex-wrap: wrap;
+    margin: 4vh 0;
+  }
+  .need-circle {
+    width: clamp(140px, 22vw, 220px);
+    height: clamp(140px, 22vw, 220px);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 1em;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+  }
+  .need-circle:hover { transform: scale(1.07); }
+  .need-circle.autonomy { background: radial-gradient(circle at 30% 30%, #5bb5a2, #2a6f77); }
+  .need-circle.competence { background: radial-gradient(circle at 30% 30%, #f0b55e, #d98a2b); }
+  .need-circle.relatedness { background: radial-gradient(circle at 30% 30%, #e08a8a, #c05656); }
+  .need-circle .icon { font-size: clamp(1.8rem, 3vw, 2.5rem); margin-bottom: 0.2em; }
+  .need-circle .label { font-weight: bold; font-size: clamp(0.9rem, 1.4vw, 1.15rem); }
+  .need-detail {
+    background: white;
+    border-radius: 14px;
+    padding: 2.5vh 3vw;
+    margin-top: 1.5vh;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-height: 60px;
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    line-height: 1.6;
+  }
+  .continuum-wrapper {
+    margin: 4vh 0;
+    overflow-x: auto;
+    padding-bottom: 1vh;
+  }
+  .continuum-track {
+    display: flex;
+    min-width: 700px;
+    position: relative;
+    padding-top: 2vh;
+  }
+  .continuum-track::before {
+    content: '';
+    position: absolute;
+    top: calc(2vh + 20px);
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #b0392f, #e7a23a, #3d8f7a);
+    z-index: 0;
+  }
+  .stage {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    padding: 0 0.5em;
+  }
+  .stage .dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    border: 4px solid #2a6f77;
+    margin: 0 auto 10px auto;
+    transition: all 0.25s ease;
+  }
+  .stage:hover .dot, .stage.selected .dot {
+    background: #e7a23a;
+    transform: scale(1.3);
+  }
+  .stage .stage-title {
+    font-size: clamp(0.65rem, 1vw, 0.85rem);
+    font-weight: bold;
+    color: #1f4e52;
+  }
+  .continuum-detail {
+    background: white;
+    border-radius: 14px;
+    padding: 2.5vh 3vw;
+    margin-top: 1vh;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-height: 60px;
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    line-height: 1.6;
+  }
+  .theories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5vw;
+    margin-top: 3vh;
+  }
+  .theory-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.8vh 1.5vw;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    cursor: pointer;
+    border-top: 6px solid #2a6f77;
+    transition: transform 0.25s ease;
+  }
+  .theory-card:hover { transform: translateY(-5px); }
+  .theory-card h3 {
+    margin-top: 0;
+    color: #1f4e52;
+    font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+  }
+  .theory-card p {
+    font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+    line-height: 1.5;
+    margin-bottom: 0;
+    display: none;
+  }
+  .theory-card.open p { display: block; }
+  .theory-card .abbr {
+    display: inline-block;
+    background: #e7a23a;
+    color: #22333b;
+    font-weight: bold;
+    padding: 0.1em 0.6em;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    margin-bottom: 0.5em;
+  }
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5vw;
+    margin-top: 3vh;
+  }
+  .tip-card {
+    border-radius: 14px;
+    padding: 2vh 1.5vw;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    line-height: 1.6;
+    font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+  }
+  .tip-card h3 { margin-top: 0; }
+  .tip-card.autonomy-tip { background: linear-gradient(135deg, #2a6f77, #3d8f7a); }
+  .tip-card.competence-tip { background: linear-gradient(135deg, #d98a2b, #e7a23a); }
+  .tip-card.relatedness-tip { background: linear-gradient(135deg, #c05656, #e08a8a); }
+  .tip-card ul { padding-left: 1.2em; margin: 0.5em 0 0 0; }
+
+  .reflection-box { background: #fff8ec; border: 2px dashed #e7a23a; border-radius: 14px; padding: 2vh 2vw; margin-top: 3vh; }
+  .reflection-box h4 { margin-top:0; color:#1f4e52; }
+  .reflection-box textarea { width:100%; padding:0.8em; border-radius:10px; border:1px solid #ccc; font-family:inherit; font-size:0.95rem; resize:vertical; box-sizing:border-box; }
+  .reflection-box .save-row { display:flex; gap:1em; align-items:center; margin-top:0.8em; flex-wrap:wrap; }
+  .reflection-box button.save-btn { background:#2a6f77; color:white; border:none; padding:0.5em 1.2em; border-radius:20px; cursor:pointer; font-size:0.85rem; }
+  .reflection-box .saved-msg { color:#2a6f77; font-size:0.85rem; opacity:0; transition:opacity 0.3s; font-weight:bold; }
+  .reflection-box .saved-msg.show { opacity:1; }
+
+  .case-box { background:#eef5f4; border-left:6px solid #2a6f77; border-radius:10px; padding:2vh 2vw; margin-top:3vh; }
+  .case-box h4 { margin-top:0; color:#1f4e52; }
+
+  .quiz-question { margin-top:1.5vh; }
+  .quiz-question .q-text { font-weight:bold; margin-bottom:0.6em; }
+  .q-options { display:flex; flex-direction:column; gap:0.6em; }
+  .q-option { background:white; border:2px solid #cfe0df; border-radius:10px; padding:0.7em 1em; text-align:left; cursor:pointer; font-size:0.9rem; transition:all 0.2s; }
+  .q-option:hover { border-color:#2a6f77; }
+  .q-option.correct { background:#d7f0dc; border-color:#3d8f7a; }
+  .q-option.incorrect { background:#f7d7d7; border-color:#c05656; }
+  .q-option.disabled { pointer-events:none; opacity:0.7; }
+  .q-feedback { margin-top:0.6em; font-size:0.9rem; font-weight:bold; min-height:1.2em; }
+  .q-feedback.correct-text { color:#2a6f77; }
+  .q-feedback.incorrect-text { color:#c05656; }
+
+  .research-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1.5vw; margin-top:3vh; }
+  .research-card { background:white; border-radius:14px; padding:2vh 1.5vw; box-shadow:0 4px 12px rgba(0,0,0,0.08); border-top:6px solid; }
+  .research-card.autonomy-r { border-color:#2a6f77; }
+  .research-card.competence-r { border-color:#e7a23a; }
+  .research-card.relatedness-r { border-color:#c05656; }
+  .research-card h3 { margin-top:0; color:#1f4e52; }
+  .research-card ul { padding-left:1.2em; line-height:1.6; font-size:0.9rem; }
+
+  .theory-model { position:relative; width:min(480px,90vw); height:min(480px,90vw); margin:4vh auto; }
+  .theory-model .node { position:absolute; width:26%; height:26%; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; transform:translate(-50%,-50%); box-shadow:0 4px 12px rgba(0,0,0,0.15); font-size:clamp(0.65rem, 1.2vw, 0.85rem); padding:0.5em; font-weight:bold; }
+  .theory-model .hub { width:34%; height:34%; background:radial-gradient(circle at 30% 30%, #5bb5a2, #1f4e52); z-index:2; }
+  .theory-model .n1 { background:#2a6f77; }
+  .theory-model .n2 { background:#3d8f7a; }
+  .theory-model .n3 { background:#d98a2b; }
+  .theory-model .n4 { background:#c05656; }
+  .theory-model .n5 { background:#9a6fb0; }
+
+  .analysis-box { background:white; border-radius:14px; padding:2.5vh 2vw; margin-top:3vh; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+  .analysis-box label { display:block; font-weight:bold; margin:1em 0 0.3em 0; color:#1f4e52; }
+  .analysis-box textarea { width:100%; padding:0.8em; border-radius:10px; border:1px solid #ccc; font-family:inherit; resize:vertical; box-sizing:border-box; }
+
+  .plan-box { background:white; border-radius:16px; padding:3vh 3vw; box-shadow:0 4px 14px rgba(0,0,0,0.08); }
+  .plan-item { margin-bottom:1.5em; }
+  .plan-item label { font-weight:bold; color:#1f4e52; display:block; margin-bottom:0.4em; }
+  .plan-item input { width:100%; padding:0.7em; border-radius:10px; border:1px solid #ccc; font-size:0.95rem; box-sizing:border-box; }
+  .plan-save-btn { background:#e7a23a; color:#22333b; border:none; padding:0.8em 2em; border-radius:25px; cursor:pointer; font-weight:bold; font-size:1rem; margin-top:1em; }
+  .plan-saved-list { margin-top:2em; background:#f7f3eb; border-radius:12px; padding:1.5em; display:none; }
+  .plan-saved-list.show { display:block; }
+  .plan-saved-list h4 { margin-top:0; color:#1f4e52; }
+
+  footer {
+    text-align: center;
+    padding: 2vh;
+    color: #5a6c70;
+    font-size: 0.8rem;
+  }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Selvbestemmelsesteorien (SDT)</h1>
+  <p>En visuell introduksjon for undervisere i høyere utdanning – basert på selfdeterminationtheory.org</p>
+</header>
+
+<nav>
+  <button class="nav-btn active" data-section="intro">Introduksjon</button>
+  <button class="nav-btn" data-section="needs">De tre behovene</button>
+  <button class="nav-btn" data-section="continuum">Motivasjon</button>
+  <button class="nav-btn" data-section="theories">Mini-teorier</button>
+  <button class="nav-btn" data-section="research">Forskning</button>
+  <button class="nav-btn" data-section="teaching">For undervisere</button>
+  <button class="nav-btn" data-section="plan">Min handlingsplan</button>
+</nav>
+
+<main>
+
+  <section id="intro" class="active">
+    <h2>Hva er Selvbestemmelsesteorien?</h2>
+    <div class="intro-box">
+      <p>Selvbestemmelsesteorien (Self-Determination Theory, SDT) ble utviklet av psykologene
+      <strong>Edward Deci</strong> og <strong>Richard Ryan</strong>. Teorien handler om menneskelig
+      motivasjon, personlighetsutvikling og trivsel, og skiller mellom <em>indre motivasjon</em>
+      (å gjøre noe fordi det er interessant eller meningsfullt i seg selv) og <em>ytre motivasjon</em>
+      (å gjøre noe for en belønning eller konsekvens).</p>
+      <p>Et sentralt poeng i teorien er at mennesker har tre <strong>grunnleggende psykologiske behov</strong>
+      som må tilfredsstilles for at vi skal fungere optimalt, oppleve trivsel og være motivert:
+      <strong>autonomi</strong>, <strong>kompetanse</strong> og <strong>tilhørighet</strong>.</p>
+      <p>SDT består også av flere <strong>mini-teorier</strong> som sammen beskriver ulike sider av
+      motivasjon – fra hvordan ytre faktorer påvirker indre motivasjon, til hvordan motivasjon kan
+      utvikle seg fra kontrollert til mer selvstendig regulert atferd.</p>
+      <p>Bruk menyen over for å utforske de ulike delene av teorien – spesielt tilpasset deg som skal
+      undervise på universitet eller høyskole.</p>
+      <p style="margin-top:1.5em; font-size:0.85em; opacity:0.8;">
+      Kilde: <a href="javascript:void(0)" onclick="return false;">selfdeterminationtheory.org</a> (offisielt nettsted for SDT)</p>
+    </div>
+
+    <div class="reflection-box" data-refid="intro1">
+      <h4>💭 Refleksjon</h4>
+      <p>Tenk på en situasjon der du selv var svært motivert for å lære noe. Hva tror du gjorde at du opplevde indre motivasjon?</p>
+      <textarea rows="3" placeholder="Skriv dine tanker her..."></textarea>
+      <div class="save-row">
+        <button class="save-btn">Lagre refleksjon</button>
+        <span class="saved-msg">Lagret ✓</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="needs">
+    <h2>De tre grunnleggende psykologiske behovene</h2>
+    <p>Ifølge <strong>Basic Psychological Needs Theory (BPNT)</strong> må alle mennesker, uansett kultur
+    eller alder, få dekket tre grunnleggende behov for å oppleve motivasjon, vekst og trivsel. Klikk på
+    sirklene for å lese mer:</p>
+    <div class="needs-wrapper">
+      <div class="need-circle autonomy" data-need="autonomy">
+        <div class="icon">🧭</div>
+        <div class="label">Autonomi</div>
+      </div>
+      <div class="need-circle competence" data-need="competence">
+        <div class="icon">🎯</div>
+        <div class="label">Kompetanse</div>
+      </div>
+      <div class="need-circle relatedness" data-need="relatedness">
+        <div class="icon">🤝</div>
+        <div class="label">Tilhørighet</div>
+      </div>
+    </div>
+    <div class="need-detail" id="needDetail">
+      Klikk på en av sirklene over for å se en forklaring her.
+    </div>
+
+    <div class="case-box">
+      <h4>📋 Case: Gruppearbeid i et emne på bachelornivå</h4>
+      <p>En foreleser gir studentene et strengt detaljert oppskrift for hvordan gruppearbeidet skal gjennomføres,
+      steg for steg, uten rom for egne valg. Studentene får ingen begrunnelse for hvorfor metoden brukes,
+      og flere opplever oppgaven som meningsløs og kjedelig.</p>
+      <div class="quiz-question" data-correct="a">
+        <p class="q-text">Hvilket av de tre grunnleggende behovene blir mest tydelig krenket i dette scenariet?</p>
+        <div class="q-options">
+          <button class="q-option" data-opt="a">Autonomi</button>
+          <button class="q-option" data-opt="b">Kompetanse</button>
+          <button class="q-option" data-opt="c">Tilhørighet</button>
+        </div>
+        <div class="q-feedback"></div>
+      </div>
+    </div>
+
+    <div class="reflection-box" data-refid="needs1">
+      <h4>💭 Refleksjon</h4>
+      <p>Hvordan kunne du som underviser ha gjennomført dette gruppearbeidet på en måte som i større grad støtter autonomi, kompetanse og tilhørighet samtidig?</p>
+      <textarea rows="3" placeholder="Skriv dine tanker her..."></textarea>
+      <div class="save-row">
+        <button class="save-btn">Lagre refleksjon</button>
+        <span class="saved-msg">Lagret ✓</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="continuum">
+    <h2>Motivasjonskontinuumet</h2>
+    <p><strong>Organismic Integration Theory (OIT)</strong> beskriver hvordan ytre motivert atferd kan
+    bli mer eller mindre "internalisert" – altså hvor mye personen selv identifiserer seg med handlingen.
+    Klikk på punktene langs linjen for å se forklaringer:</p>
+    <div class="continuum-wrapper">
+      <div class="continuum-track" id="continuumTrack">
+        <div class="stage" data-stage="amotivation"><div class="dot"></div><div class="stage-title">Amotivasjon</div></div>
+        <div class="stage" data-stage="external"><div class="dot"></div><div class="stage-title">Ytre regulering</div></div>
+        <div class="stage" data-stage="introjected"><div class="dot"></div><div class="stage-title">Introjisert regulering</div></div>
+        <div class="stage" data-stage="identified"><div class="dot"></div><div class="stage-title">Identifisert regulering</div></div>
+        <div class="stage" data-stage="integrated"><div class="dot"></div><div class="stage-title">Integrert regulering</div></div>
+        <div class="stage" data-stage="intrinsic"><div class="dot"></div><div class="stage-title">Indre motivasjon</div></div>
+      </div>
+    </div>
+    <div class="continuum-detail" id="continuumDetail">
+      Klikk på et trinn over for å se forklaring.
+    </div>
+
+    <div class="case-box">
+      <h4>✏️ Selvtest: Hvilken regulering er dette?</h4>
+      <div class="quiz-question" data-correct="c">
+        <p class="q-text">En student leser ekstra pensum fordi hen genuint synes temaet er fascinerende og gøy, uten noen ytre grunn.</p>
+        <div class="q-options">
+          <button class="q-option" data-opt="a">Introjisert regulering</button>
+          <button class="q-option" data-opt="b">Identifisert regulering</button>
+          <button class="q-option" data-opt="c">Indre motivasjon</button>
+        </div>
+        <div class="q-feedback"></div>
+      </div>
+      <div class="quiz-question" data-correct="a">
+        <p class="q-text">En student jobber hardt med en innlevering fordi hen ville føle seg skamfull om hen ikke gjorde det.</p>
+        <div class="q-options">
+          <button class="q-option" data-opt="a">Introjisert regulering</button>
+          <button class="q-option" data-opt="b">Ytre regulering</button>
+          <button class="q-option" data-opt="c">Integrert regulering</button>
+        </div>
+        <div class="q-feedback"></div>
+      </div>
+    </div>
+
+    <div class="reflection-box" data-refid="continuum1">
+      <h4>💭 Refleksjon</h4>
+      <p>Tenk på dine egne studenter: Hvilke typer regulering ser du oftest i din undervisning, og hva kan du gjøre for å støtte mer autonom regulering?</p>
+      <textarea rows="3" placeholder="Skriv dine tanker her..."></textarea>
+      <div class="save-row">
+        <button class="save-btn">Lagre refleksjon</button>
+        <span class="saved-msg">Lagret ✓</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="theories">
+    <h2>Mini-teoriene i SDT</h2>
+    <p>SDT er en paraplyteori bygget opp av seks mini-teorier. Klikk på et kort for å utvide/lukke forklaringen:</p>
+    <div class="theories-grid" id="theoriesGrid">
+      <div class="theory-card">
+        <span class="abbr">CET</span>
+        <h3>Cognitive Evaluation Theory</h3>
+        <p>Kognitiv evalueringsteori forklarer hvordan ytre faktorer (som belønning, tilbakemelding og press)
+        påvirker indre motivasjon – ved å styrke eller svekke opplevelsen av autonomi og kompetanse.</p>
+      </div>
+      <div class="theory-card">
+        <span class="abbr">OIT</span>
+        <h3>Organismic Integration Theory</h3>
+        <p>Organismisk integrasjonsteori beskriver hvordan ytre motivert atferd kan internaliseres gradvis,
+        fra kontrollert til mer autonom regulering – se motivasjonskontinuumet.</p>
+      </div>
+      <div class="theory-card">
+        <span class="abbr">COT</span>
+        <h3>Causality Orientations Theory</h3>
+        <p>Teori om årsaksorienteringer beskriver individuelle forskjeller i hvordan personer generelt
+        orienterer seg mot autonomi, kontroll eller upersonlige (amotiverte) forklaringer på egen atferd.</p>
+      </div>
+      <div class="theory-card">
+        <span class="abbr">BPNT</span>
+        <h3>Basic Psychological Needs Theory</h3>
+        <p>Teorien om grunnleggende psykologiske behov beskriver autonomi, kompetanse og tilhørighet som
+        universelle behov som må dekkes for trivsel og optimal fungering – se egen seksjon.</p>
+      </div>
+      <div class="theory-card">
+        <span class="abbr">GCT</span>
+        <h3>Goal Contents Theory</h3>
+        <p>Teorien om målinnhold skiller mellom indre mål (f.eks. personlig vekst, relasjoner) og ytre mål
+        (f.eks. penger, image), og viser at indre mål fremmer trivsel bedre enn ytre mål.</p>
+      </div>
+      <div class="theory-card">
+        <span class="abbr">RMT</span>
+        <h3>Relationships Motivation Theory</h3>
+        <p>Relasjonsmotivasjonsteori fokuserer på hvordan tilfredsstillende, nære relasjoner avhenger av
+        gjensidig autonomistøtte mellom partene, ikke bare behovet for tilhørighet alene.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:4vh; color:#1f4e52;">Hvordan henger mini-teoriene sammen?</h3>
+    <p>Basic Psychological Needs Theory (BPNT) er kjernen i SDT – de fem andre mini-teoriene
+    utforsker ulike sider av hvordan autonomi, kompetanse og tilhørighet påvirkes og utvikles
+    i ulike kontekster:</p>
+    <div class="theory-model">
+      <div class="node hub" style="top:50%; left:50%;">BPNT<br>(kjernebehov)</div>
+      <div class="node n1" style="top:12%; left:50%;">CET</div>
+      <div class="node n2" style="top:38.3%; left:86.1%;">OIT</div>
+      <div class="node n3" style="top:80.7%; left:72.3%;">GCT</div>
+      <div class="node n4" style="top:80.7%; left:27.7%;">RMT</div>
+      <div class="node n5" style="top:38.3%; left:13.9%;">COT</div>
+    </div>
+
+    <div class="reflection-box" data-refid="theories1">
+      <h4>💭 Refleksjon</h4>
+      <p>Hvilken av de seks mini-teoriene synes du er mest relevant for din egen undervisningspraksis, og hvorfor?</p>
+      <textarea rows="3" placeholder="Skriv dine tanker her..."></textarea>
+      <div class="save-row">
+        <button class="save-btn">Lagre refleksjon</button>
+        <span class="saved-msg">Lagret ✓</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="research">
+    <h2>Hva sier forskningen?</h2>
+    <p>Forskning på SDT i høyere utdanning viser gjennomgående at støtte til de tre grunnleggende
+    behovene henger sammen med bedre læring, dypere engasjement og lavere frafall. Her er noen
+    sentrale funn:</p>
+    <div class="research-grid">
+      <div class="research-card autonomy-r">
+        <h3>🧭 Autonomi</h3>
+        <ul>
+          <li>Autonomistøttende undervisning er knyttet til dypere læringsstrategier og bedre karakterer</li>
+          <li>Studenter som opplever valgfrihet rapporterer høyere indre motivasjon gjennom studieløpet</li>
+          <li>Kontrollerende undervisningsstiler henger sammen med høyere frafall og overflatelæring</li>
+        </ul>
+      </div>
+      <div class="research-card competence-r">
+        <h3>🎯 Kompetanse</h3>
+        <ul>
+          <li>Konstruktiv, prosessorientert tilbakemelding styrker opplevd mestring mer enn kun karakterer</li>
+          <li>Passe utfordrende oppgaver med tydelige mål fremmer vedvarende innsats</li>
+          <li>Opplevd kompetanse tidlig i studiet predikerer gjennomføring senere</li>
+        </ul>
+      </div>
+      <div class="research-card relatedness-r">
+        <h3>🤝 Tilhørighet</h3>
+        <ul>
+          <li>Opplevelse av tilhørighet til studiemiljø er en av de sterkeste prediktorene for trivsel</li>
+          <li>Relasjon til faglærer påvirker studenters motivasjon mer enn mange tror</li>
+          <li>Samarbeidslæring styrker både tilhørighet og læringsutbytte når det er godt tilrettelagt</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="case-box">
+      <h4>✏️ Sjekk forståelsen</h4>
+      <div class="quiz-question" data-correct="b">
+        <p class="q-text">Hva viser forskningen oftest har sterkest sammenheng med studenters frafall i høyere utdanning?</p>
+        <div class="q-options">
+          <button class="q-option" data-opt="a">Mangel på digitale verktøy</button>
+          <button class="q-option" data-opt="b">Manglende opplevelse av tilhørighet og autonomistøtte</button>
+          <button class="q-option" data-opt="c">For få obligatoriske oppmøter</button>
+        </div>
+        <div class="q-feedback"></div>
+      </div>
+    </div>
+
+    <div class="reflection-box" data-refid="research1">
+      <h4>💭 Refleksjon</h4>
+      <p>Hvilket av disse forskningsfunnene overrasket deg mest, og hvorfor tror du det er slik?</p>
+      <textarea rows="3" placeholder="Skriv dine tanker her..."></textarea>
+      <div class="save-row">
+        <button class="save-btn">Lagre refleksjon</button>
+        <span class="saved-msg">Lagret ✓</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="teaching">
+    <h2>Praktiske implikasjoner for undervisning</h2>
+    <p>Hvordan kan du som underviser i høyere utdanning støtte studentenes grunnleggende behov og dermed
+    fremme motivasjon og læring? Her er noen konkrete tips knyttet til hvert behov:</p>
+    <div class="tips-grid">
+      <div class="tip-card autonomy-tip">
+        <h3>🧭 Støtt autonomi</h3>
+        <ul>
+          <li>Gi studentene valgmuligheter i oppgaver og arbeidsformer</li>
+          <li>Forklar <em>hvorfor</em> en oppgave er relevant</li>
+          <li>Unngå unødvendig kontrollerende språk ("du må")</li>
+          <li>Inviter til medbestemmelse i undervisningsopplegget</li>
+        </ul>
+      </div>
+      <div class="tip-card competence-tip">
+        <h3>🎯 Støtt kompetanse</h3>
+        <ul>
+          <li>Gi tydelige, konstruktive tilbakemeldinger</li>
+          <li>Tilpass vanskelighetsgrad til studentenes nivå</li>
+          <li>Feire fremgang, ikke bare sluttresultat</li>
+          <li>Gi utfordringer som er mulige å mestre med innsats</li>
+        </ul>
+      </div>
+      <div class="tip-card relatedness-tip">
+        <h3>🤝 Støtt tilhørighet</h3>
+        <ul>
+          <li>Legg til rette for samarbeid mellom studenter</li>
+          <li>Vis genuin interesse for studentenes perspektiver</li>
+          <li>Skap et trygt klassemiljø fritt for latterliggjøring</li>
+          <li>Vær tilgjengelig og vis varme som underviser</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="case-box">
+      <h4>📋 Case: Tilbakemelding på innlevering</h4>
+      <p>En student leverer en svak besvarelse. Underviseren vurderer tre måter å gi tilbakemelding på:
+      (A) "Dette holder ikke faglig mål, du må jobbe hardere", (B) en liste med konkrete forbedringspunkter
+      og anerkjennelse av det som fungerer, pluss et tilbud om veiledningstime, eller (C) kun en karakter
+      uten kommentarer.</p>
+      <div class="quiz-question" data-correct="b">
+        <p class="q-text">Hvilken tilbakemelding støtter best alle tre grunnleggende behov samtidig?</p>
+        <div class="q-options">
+          <button class="q-option" data-opt="a">Alternativ A</button>
+          <button class="q-option" data-opt="b">Alternativ B</button>
+          <button class="q-option" data-opt="c">Alternativ C</button>
+        </div>
+        <div class="q-feedback"></div>
+      </div>
+    </div>
+
+    <div class="reflection-box" data-refid="teaching1">
+      <h4>💭 Refleksjon</h4>
+      <p>Hvilket av disse undervisningstipsene bruker du allerede, og hvilket vil du prøve ut først?</p>
+      <textarea rows="3" placeholder="Skriv dine tanker her..."></textarea>
+      <div class="save-row">
+        <button class="save-btn">Lagre refleksjon</button>
+        <span class="saved-msg">Lagret ✓</span>
+      </div>
+    </div>
+
+    <div class="analysis-box">
+      <h3 style="margin-top:0; color:#1f4e52;">🔍 Avsluttende analyseoppgave</h3>
+      <p>Vurder din egen undervisning gjennom SDT-linsen ved å svare på spørsmålene under:</p>
+      <label>Hvordan støtter du i dag studentenes autonomi? Hvor kan du bli bedre?</label>
+      <textarea rows="3" placeholder="Skriv her..."></textarea>
+      <label>Hvordan støtter du i dag studentenes opplevelse av kompetanse? Hvor kan du bli bedre?</label>
+      <textarea rows="3" placeholder="Skriv her..."></textarea>
+      <label>Hvordan støtter du i dag studentenes tilhørighet? Hvor kan du bli bedre?</label>
+      <textarea rows="3" placeholder="Skriv her..."></textarea>
+    </div>
+  </section>
+
+  <section id="plan">
+    <h2>Min personlige handlingsplan</h2>
+    <p>Skriv ned tre konkrete tiltak du vil prøve i din egen undervisning for å styrke studentenes
+    autonomi, kompetanse og tilhørighet. Tiltakene lagres i nettleseren din slik at du kan komme
+    tilbake til dem senere.</p>
+    <div class="plan-box">
+      <div class="plan-item">
+        <label>Tiltak 1 – knyttet til autonomi 🧭</label>
+        <input type="text" id="plan1" placeholder="F.eks. gi studentene valg mellom to oppgavetyper">
+      </div>
+      <div class="plan-item">
+        <label>Tiltak 2 – knyttet til kompetanse 🎯</label>
+        <input type="text" id="plan2" placeholder="F.eks. innføre mer prosessorientert tilbakemelding">
+      </div>
+      <div class="plan-item">
+        <label>Tiltak 3 – knyttet til tilhørighet 🤝</label>
+        <input type="text" id="plan3" placeholder="F.eks. sette av tid til uformell dialog i starten av timen">
+      </div>
+      <button class="plan-save-btn" id="savePlanBtn">Lagre handlingsplan</button>
+      <div class="plan-saved-list" id="planSavedList">
+        <h4>Din lagrede handlingsplan:</h4>
+        <p id="planSavedText"></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Innhold inspirert av og basert på selfdeterminationtheory.org – laget som læringsressurs for UH-pedagogikk.
+</footer>
+
+  <script>
+window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+
+// Navigasjon mellom seksjoner
+  const navButtons = document.querySelectorAll('.nav-btn');
+  const sections = document.querySelectorAll('main section');
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navButtons.forEach(b => b.classList.remove('active'));
+      sections.forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.section).classList.add('active');
+    });
+  });
+
+  // De tre behovene
+  const needData = {
+    autonomy: "<strong>Autonomi</strong> handler om å oppleve at man selv velger og styrer sine egne handlinger – å handle i tråd med egne verdier og interesser, fremfor å føle seg presset eller kontrollert utenfra. I undervisning handler dette om å gi studenter reell valgfrihet og medbestemmelse.",
+    competence: "<strong>Kompetanse</strong> handler om å oppleve mestring og effektivitet i det man gjør – å føle at man er i stand til å løse utfordringer og utvikle seg. Dette styrkes av passe utfordrende oppgaver og god, konstruktiv tilbakemelding.",
+    relatedness: "<strong>Tilhørighet</strong> handler om å føle seg knyttet til og bry seg om andre, og å oppleve at andre bryr seg om en selv. I en undervisningskontekst handler dette om et trygt fellesskap der studenter føler seg sett og inkludert."
+  };
+  document.querySelectorAll('.need-circle').forEach(circle => {
+    circle.addEventListener('click', () => {
+      document.getElementById('needDetail').innerHTML = needData[circle.dataset.need];
+    });
+  });
+
+  // Motivasjonskontinuum
+  const stageData = {
+    amotivation: "<strong>Amotivasjon</strong>: Fullstendig mangel på intensjon om å handle. Personen ser ingen verdi i aktiviteten, eller føler seg helt inkompetent til å utføre den. Eksempel: en student som ikke ser poenget med en oppgave og dropper den helt.",
+    external: "<strong>Ytre regulering</strong>: Atferden styres av ytre belønninger eller straff – f.eks. en student som kun leser pensum for å unngå å stryke på eksamen.",
+    introjected: "<strong>Introjisert regulering</strong>: Atferden drives av indre press som skyldfølelse, skam eller ønske om anerkjennelse – f.eks. en student som jobber for å unngå å føle seg dum.",
+    identified: "<strong>Identifisert regulering</strong>: Personen ser personlig verdi og mening i aktiviteten, selv om den ikke oppleves som gøy i seg selv – f.eks. en student som øver fordi hen anerkjenner at det er viktig for fremtidig jobb.",
+    integrated: "<strong>Integrert regulering</strong>: Aktiviteten er fullt ut integrert med personens verdier og identitet – den oppleves som en naturlig del av hvem man er, men gjøres fortsatt for et utenforliggende mål.",
+    intrinsic: "<strong>Indre motivasjon</strong>: Den mest selvstendige formen for motivasjon – man gjør noe fordi det i seg selv er interessant, gledesfylt eller tilfredsstillende, uten noen ytre grunn."
+  };
+  document.querySelectorAll('.stage').forEach(stage => {
+    stage.addEventListener('click', () => {
+      document.querySelectorAll('.stage').forEach(s => s.classList.remove('selected'));
+      stage.classList.add('selected');
+      document.getElementById('continuumDetail').innerHTML = stageData[stage.dataset.stage];
+    });
+  });
+
+  // Mini-teorier - åpne/lukke kort
+  document.querySelectorAll('.theory-card').forEach(card => {
+    card.addEventListener('click', () => {
+      card.classList.toggle('open');
+    });
+  });
+
+  // Quiz / flervalgsspørsmål med umiddelbar tilbakemelding
+  document.querySelectorAll('.quiz-question').forEach(q => {
+    const correct = q.dataset.correct;
+    const feedback = q.querySelector('.q-feedback');
+    q.querySelectorAll('.q-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const allOpts = q.querySelectorAll('.q-option');
+        allOpts.forEach(o => o.classList.add('disabled'));
+        if (opt.dataset.opt === correct) {
+          opt.classList.add('correct');
+          feedback.textContent = '✓ Riktig! Godt jobbet.';
+          feedback.className = 'q-feedback correct-text';
+        } else {
+          opt.classList.add('incorrect');
+          const correctOpt = q.querySelector('.q-option[data-opt="' + correct + '"]');
+          if (correctOpt) correctOpt.classList.add('correct');
+          feedback.textContent = '✗ Ikke helt. Riktig svar er markert med grønt.';
+          feedback.className = 'q-feedback incorrect-text';
+        }
+      });
+    });
+  });
+
+  // Refleksjonsbokser - lagre i nettleseren
+  document.querySelectorAll('.reflection-box').forEach(box => {
+    const id = 'sdt_reflection_' + box.dataset.refid;
+    const textarea = box.querySelector('textarea');
+    const saveBtn = box.querySelector('.save-btn');
+    const savedMsg = box.querySelector('.saved-msg');
+    const stored = localStorage.getItem(id);
+    if (stored) textarea.value = stored;
+    saveBtn.addEventListener('click', () => {
+      localStorage.setItem(id, textarea.value);
+      savedMsg.classList.add('show');
+      setTimeout(() => savedMsg.classList.remove('show'), 2000);
+    });
+  });
+
+  // Personlig handlingsplan - lagre og vise
+  const planInputs = ['plan1', 'plan2', 'plan3'];
+  const planSavedList = document.getElementById('planSavedList');
+  const planSavedText = document.getElementById('planSavedText');
+
+  function loadPlan() {
+    let hasAny = false;
+    let html = '';
+    const labels = ['Autonomi 🧭', 'Kompetanse 🎯', 'Tilhørighet 🤝'];
+    planInputs.forEach((id, i) => {
+      const val = localStorage.getItem('sdt_' + id);
+      if (val) {
+        document.getElementById(id).value = val;
+        html += '<strong>' + labels[i] + ':</strong> ' + val + '<br>';
+        hasAny = true;
+      }
+    });
+    if (hasAny) {
+      planSavedText.innerHTML = html;
+      planSavedList.classList.add('show');
+    }
+  }
+  loadPlan();
+
+  document.getElementById('savePlanBtn').addEventListener('click', () => {
+    planInputs.forEach(id => {
+      const val = document.getElementById(id).value.trim();
+      if (val) localStorage.setItem('sdt_' + id, val);
+    });
+    loadPlan();
+  });
+  </script>
+</body>
+</html>
